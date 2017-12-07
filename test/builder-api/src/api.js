@@ -4,3 +4,4 @@ require('./sessions.js');
 require('./invitations.js');
 require('./packages.js');
 require('./channels.js');
+require('./jobs.js');
