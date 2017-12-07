@@ -301,7 +301,7 @@ describe('Working with packages', function() {
     });
 
     it('toggles the privacy setting for a package', function(done) {
-      request.patch(`/depot/pkgs/neurosis/testapp/0.1.3/${release1}/private`)
+      request.patch(`/depot/pkgs/neurosis/testapp/0.1.3/${release2}/private`)
         .set('Authorization', global.boboBearer)
         .type('application/json')
         .accept('application/json')
@@ -318,9 +318,6 @@ describe('Working with packages', function() {
         .accept('application/json')
         .expect(200)
         .end(function(err, res) {
-          // console.log('------------------ RESPONSE ------------------');
-          // console.log(res.text);
-          // console.log('------------------ RESPONSE ------------------');
           expect(res.body.plans).to.equal(3);
           expect(res.body.builds).to.equal(0);
           expect(res.body.unique_packages).to.equal(1);

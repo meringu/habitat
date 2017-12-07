@@ -64,6 +64,9 @@ describe('Channels API', function() {
         .accept('application/json')
         .expect(200)
         .end(function(err, res) {
+          // console.log('------------------ RESPONSE ------------------');
+          // console.log(res.text);
+          // console.log('------------------ RESPONSE ------------------');
           expect(res.body.range_start).to.equal(0);
           expect(res.body.range_end).to.equal(0);
           expect(res.body.total_count).to.equal(1);
