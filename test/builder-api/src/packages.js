@@ -1,5 +1,6 @@
 const expect = require('chai').expect;
 const supertest = require('supertest');
+const binaryParser = require('superagent-binary-parser');
 const request = supertest('http://localhost:9636/v1');
 const fs = require('fs');
 
@@ -12,6 +13,7 @@ var file1 = fs.readFileSync(__dirname + `/../fixtures/neurosis-testapp-0.1.3-${r
 var file2 = fs.readFileSync(__dirname + `/../fixtures/neurosis-testapp-0.1.3-${release2}-x86_64-linux.hart`);
 var file3 = fs.readFileSync(__dirname + `/../fixtures/neurosis-testapp-0.1.4-${release3}-x86_64-linux.hart`);
 var file4 = fs.readFileSync(__dirname + `/../fixtures/xmen-testapp-0.1.4-${release4}-x86_64-linux.hart`);
+var downloadedPath = '/tmp/';
 
 describe('Working with packages', function() {
   describe('Uploading packages', function() {
@@ -260,9 +262,6 @@ describe('Working with packages', function() {
         .accept('application/json')
         .expect(200)
         .end(function(err, res) {
-          // console.log('-------------------------------------');
-          // console.log(res.text);
-          // console.log('-------------------------------------');
           expect(res.body.ident.origin).to.equal('neurosis');
           expect(res.body.ident.name).to.equal('testapp');
           expect(res.body.ident.version).to.equal('0.1.3');
@@ -273,12 +272,60 @@ describe('Working with packages', function() {
   });
 
   describe('Other functions', function() {
-    it('lists all the channels a package is in');
+    it('lists all the channels a package is in', function(done) {
+      request.get(`/depot/pkgs/neurosis/testapp/0.1.3/${release2}/channels`)
+        .type('application/json')
+        .accept('application/json')
+        .expect(200)
+        .end(function(err, res) {
+          expect(res.body.length).to.equal(1);
+          expect(res.body[0]).to.equal('unstable');
+          done(err);
+        });
+    });
 
-    it('downloads a package');
+    it('downloads a package', function(done) {
+      request.get(`/depot/pkgs/neurosis/testapp/0.1.3/${release2}/download`)
+        .expect(200)
+        .buffer()
+        .parse(binaryParser)
+        .end(function(err, res) {
+          var name = res.header['x-filename'];
+          var path = downloadedPath + name;
+          fs.writeFileSync(path, res.body);
+          var size = fs.statSync(path).size;
+          expect(name).to.equal(`neurosis-testapp-0.1.3-${release2}-x86_64-linux.hart`)
+          expect(size).to.equal(1569);
+          done(err);
+        });
+    });
 
-    it('toggles the privacy setting for a package');
+    it('toggles the privacy setting for a package', function(done) {
+      request.patch(`/depot/pkgs/neurosis/testapp/0.1.3/${release1}/private`)
+        .set('Authorization', global.boboBearer)
+        .type('application/json')
+        .accept('application/json')
+        .expect(200)
+        .end(function(err, res) {
+          expect(res.text).to.be.empty;
+          done(err);
+        });
+    });
 
-    it('returns package stats');
+    it('returns package stats', function(done) {
+      request.get('/depot/pkgs/origins/neurosis/stats')
+        .type('application/json')
+        .accept('application/json')
+        .expect(200)
+        .end(function(err, res) {
+          // console.log('------------------ RESPONSE ------------------');
+          // console.log(res.text);
+          // console.log('------------------ RESPONSE ------------------');
+          expect(res.body.plans).to.equal(3);
+          expect(res.body.builds).to.equal(0);
+          expect(res.body.unique_packages).to.equal(1);
+          done(err);
+        });
+    });
   });
 });
