@@ -42,4 +42,11 @@ describe('Origin API', function() {
         });
     });
   });
+
+  describe('Updating origins', function() {
+    it('requires authentication');
+    it('requires that you are a member of the origin being updated');
+    it('succeeds');
+    it('reflects the changes when viewing it again');
+  });
 });

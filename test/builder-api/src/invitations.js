@@ -106,3 +106,18 @@ describe('Origin Invitations API', function() {
     });
   });
 });
+
+describe('Related Origin API functions', function() {
+  describe('Retrieving origin users', function() {
+    it('requires authentication');
+    it('requires that you are a member of the origin');
+    it('returns the list of users');
+  });
+
+  describe('Removing a member from an origin', function() {
+    it('requires authentication');
+    it('requires that you are the owner of the origin');
+    it('succeeds');
+    it('no longer shows the removed user as part of the origin');
+  });
+});

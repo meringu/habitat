@@ -2207,7 +2207,6 @@ where
             XHandler::new(origin_update).before(basic.clone())
         },
         origin: get "/origins/:origin" => origin_show,
-
         origin_keys: get "/origins/:origin/keys" => list_origin_keys,
         origin_key_latest: get "/origins/:origin/keys/latest" => download_latest_origin_key,
         origin_key: get "/origins/:origin/keys/:revision" => download_origin_key,
