@@ -2,6 +2,8 @@ const expect = require('chai').expect;
 const supertest = require('supertest');
 const request = supertest('http://localhost:9636/v1');
 
+// JB TODO: get a bit more granular with the expectations for each endpoint
+// here, esp re: auth
 describe('Channels API', function() {
   describe('Create foo channel', function() {
     it('returns the created channel', function(done) {
@@ -39,7 +41,7 @@ describe('Channels API', function() {
     it('requires origin membership to promote a package', function(done) {
       request.put('/depot/channels/neurosis/foo/pkgs/testapp/0.1.3/20171205003213/promote')
         .set('Authorization', global.mystiqueBearer)
-        // existing behavior is incorrect - this should return a 403 not a 401
+        // JB TODO: existing behavior is incorrect - this should return a 403 not a 401
         .expect(401)
         .end(function(err, res) {
           done(err);
@@ -64,9 +66,6 @@ describe('Channels API', function() {
         .accept('application/json')
         .expect(200)
         .end(function(err, res) {
-          // console.log('------------------ RESPONSE ------------------');
-          // console.log(res.text);
-          // console.log('------------------ RESPONSE ------------------');
           expect(res.body.range_start).to.equal(0);
           expect(res.body.range_end).to.equal(0);
           expect(res.body.total_count).to.equal(1);

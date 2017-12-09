@@ -539,7 +539,8 @@ fn upload_origin_key(req: &mut Request) -> IronResult<Response> {
     request.set_body(key_content);
     request.set_owner_id(0);
     match route_message::<OriginPublicKeyCreate, OriginPublicKey>(req, &request) {
-        Ok(_) => {
+        Ok(key) => {
+            debug!("**************** HAHA it worked, success. {:?}", key);
             log_event!(
                 req,
                 Event::OriginKeyUpload {
@@ -1287,6 +1288,11 @@ fn list_origin_keys(req: &mut Request) -> IronResult<Response> {
                 .collect();
             let body = serde_json::to_string(&list).unwrap();
             let mut response = Response::with((status::Ok, body));
+            response.headers.set(ContentType(Mime(
+                TopLevel::Application,
+                SubLevel::Json,
+                vec![(Attr::Charset, Value::Utf8)],
+            )));
             dont_cache_response(&mut response);
             Ok(response)
         }

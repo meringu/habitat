@@ -4,15 +4,15 @@ const binaryParser = require('superagent-binary-parser');
 const request = supertest('http://localhost:9636/v1');
 const fs = require('fs');
 
-var release1 = '20171205003213';
-var release2 = '20171206004121';
-var release3 = '20171206004139';
-var release4 = '20171206005217';
+const release1 = '20171205003213';
+const release2 = '20171206004121';
+const release3 = '20171206004139';
+const release4 = '20171206005217';
 
-var file1 = fs.readFileSync(__dirname + `/../fixtures/neurosis-testapp-0.1.3-${release1}-x86_64-linux.hart`);
-var file2 = fs.readFileSync(__dirname + `/../fixtures/neurosis-testapp-0.1.3-${release2}-x86_64-linux.hart`);
-var file3 = fs.readFileSync(__dirname + `/../fixtures/neurosis-testapp-0.1.4-${release3}-x86_64-linux.hart`);
-var file4 = fs.readFileSync(__dirname + `/../fixtures/xmen-testapp-0.1.4-${release4}-x86_64-linux.hart`);
+const file1 = fs.readFileSync(__dirname + `/../fixtures/neurosis-testapp-0.1.3-${release1}-x86_64-linux.hart`);
+const file2 = fs.readFileSync(__dirname + `/../fixtures/neurosis-testapp-0.1.3-${release2}-x86_64-linux.hart`);
+const file3 = fs.readFileSync(__dirname + `/../fixtures/neurosis-testapp-0.1.4-${release3}-x86_64-linux.hart`);
+const file4 = fs.readFileSync(__dirname + `/../fixtures/xmen-testapp-0.1.4-${release4}-x86_64-linux.hart`);
 var downloadedPath = '/tmp/';
 
 describe('Working with packages', function() {
