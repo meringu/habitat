@@ -5,12 +5,14 @@
   "main": "index.js",
   "scripts": {
     "mocha": "mocha --require src/helpers --reporter spec src/api.js",
-    "test": "./test.sh"
+    "test": "./test.sh",
+    "token": "node src/test.js"
   },
   "author": "The Habitat Humans",
   "license": "Apache-2.0",
   "dependencies": {
     "chai": "^3.5.0",
+    "jwt-builder": "1.1.0",
     "mocha": "^3.2.0",
     "supertest": "^3.0.0",
     "superagent-binary-parser": "^1.0.1"
