@@ -320,6 +320,14 @@ pub fn session_create_short_circuit(req: &mut Request, token: &str) -> IronResul
             request.set_provider(OAuthProvider::GitHub);
             request
         }
+        "hank" => {
+            let mut request = SessionCreate::new();
+            request.set_extern_id(2);
+            request.set_email("hank@example.com".to_string());
+            request.set_name("hank".to_string());
+            request.set_provider(OAuthProvider::GitHub);
+            request
+        }
         user => {
             panic!(
                 "You need to define the stub user {} during HAB_FUNC_TEST",

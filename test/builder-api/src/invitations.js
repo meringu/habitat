@@ -109,15 +109,90 @@ describe('Origin Invitations API', function() {
 
 describe('Related Origin API functions', function() {
   describe('Retrieving origin users', function() {
-    it('requires authentication');
-    it('requires that you are a member of the origin');
-    it('returns the list of users');
+    it('requires authentication', function(done) {
+      request.get('/depot/origins/xmen/users')
+        .type('application/json')
+        .accept('application/json')
+        .expect(401)
+        .end(function(err, res) {
+          expect(res.text).to.be.empty;
+          done(err);
+        });
+    });
+
+    it('requires that you are a member of the origin', function(done) {
+      request.get('/depot/origins/xmen/users')
+        .type('application/json')
+        .accept('application/json')
+        .set('Authorization', global.hankBearer)
+        .expect(403)
+        .end(function(err, res) {
+          expect(res.text).to.be.empty;
+          done(err);
+        });
+    });
+
+    it('returns the list of users', function(done) {
+      request.get('/depot/origins/xmen/users')
+        .type('application/json')
+        .accept('application/json')
+        .set('Authorization', global.mystiqueBearer)
+        .expect(200)
+        .end(function(err, res) {
+          expect(res.body.origin_id).to.equal(global.originXmen.id);
+          expect(res.body.members).to.deep.equal(['bobo', 'mystique']);
+          done(err);
+        });
+    });
   });
 
   describe('Removing a member from an origin', function() {
-    it('requires authentication');
-    it('requires that you are the owner of the origin');
-    it('succeeds');
-    it('no longer shows the removed user as part of the origin');
+    it('requires authentication', function(done) {
+      request.delete('/depot/origins/xmen/users/bobo')
+        .type('application/json')
+        .accept('application/json')
+        .expect(401)
+        .end(function(err, res) {
+          expect(res.text).to.be.empty;
+          done(err);
+        });
+    });
+
+    it('requires that you are the owner of the origin', function(done) {
+      request.delete('/depot/origins/xmen/users/bobo')
+        .type('application/json')
+        .accept('application/json')
+        .set('Authorization', global.hankBearer)
+        .expect(403)
+        .end(function(err, res) {
+          expect(res.text).to.be.empty;
+          done(err);
+        });
+    });
+
+    it('succeeds', function(done) {
+      request.delete('/depot/origins/xmen/users/bobo')
+        .type('application/json')
+        .accept('application/json')
+        .set('Authorization', global.mystiqueBearer)
+        .expect(204)
+        .end(function(err, res) {
+          expect(res.text).to.be.empty;
+          done(err);
+        });
+    });
+
+    it('no longer shows the removed user as part of the origin', function(done) {
+      request.get('/depot/origins/xmen/users')
+        .type('application/json')
+        .accept('application/json')
+        .set('Authorization', global.mystiqueBearer)
+        .expect(200)
+        .end(function(err, res) {
+          expect(res.body.origin_id).to.equal(global.originXmen.id);
+          expect(res.body.members).to.deep.equal(['mystique']);
+          done(err);
+        });
+    });
   });
 });

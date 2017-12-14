@@ -12,8 +12,17 @@ let token = jwt({
   iss: 5629
 });
 
+// request
+//   .get('https://api.github.com/app')
+//   .set('Accept', 'application/vnd.github.machine-man-preview+json')
+//   .set('Authorization', `Bearer ${token}`)
+//   .end((err, res) => {
+//     console.log('response');
+//     console.log(res.body);
+//   });
+
 request
-  .get('https://api.github.com/app')
+  .get('https://api.github.com/app/installations')
   .set('Accept', 'application/vnd.github.machine-man-preview+json')
   .set('Authorization', `Bearer ${token}`)
   .end((err, res) => {
