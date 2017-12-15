@@ -2,6 +2,9 @@ const expect = require('chai').expect;
 const supertest = require('supertest');
 const request = supertest('http://localhost:9636/v1');
 
+// These APIs can't be tested until the projects APIs can be tested, as
+// projects are a prerequisite to creating jobs.
+
 describe('Jobs API', function() {
   // These are in builder-depot
   describe('Scheduling jobs', function() {

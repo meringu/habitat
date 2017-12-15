@@ -40,7 +40,7 @@ describe('Origin API', function() {
   });
 
   describe('Create xmen origin', function() {
-    it('returns the created origin again', function(done) {
+    it('returns the created origin', function(done) {
       request.post('/depot/origins')
         .set('Authorization', global.mystiqueBearer)
         .send({'name': 'xmen'})

@@ -167,6 +167,7 @@ pub fn visibility_for_optional_session(
     v.push(OriginPackageVisibility::Public);
 
     if optional_session_id.is_some() && check_origin_access(req, origin).unwrap_or(false) {
+        v.push(OriginPackageVisibility::Hidden);
         v.push(OriginPackageVisibility::Private);
     }
 

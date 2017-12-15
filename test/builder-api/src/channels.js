@@ -2,10 +2,17 @@ const expect = require('chai').expect;
 const supertest = require('supertest');
 const request = supertest('http://localhost:9636/v1');
 
-// JB TODO: get a bit more granular with the expectations for each endpoint
-// here, esp re: auth
 describe('Channels API', function() {
   describe('Create foo channel', function() {
+    it('requires authentication to create a channel', function(done) {
+      request.post('/depot/channels/neurosis/foo')
+        .expect(401)
+        .end(function(err, res) {
+          expect(res.text).to.be.empty;
+          done(err);
+        });
+    });
+
     it('returns the created channel', function(done) {
       request.post('/depot/channels/neurosis/foo')
         .set('Authorization', global.boboBearer)
@@ -17,12 +24,17 @@ describe('Channels API', function() {
           done(err);
         });
     });
+  });
 
-    it('requires authentication to create a channel', function(done) {
-      request.post('/depot/channels/neurosis/foo')
-        .expect(401)
+  describe('Create bar channel', function() {
+    it('succeeds', function(done) {
+      request.post('/depot/channels/neurosis/bar')
+        .set('Authorization', global.boboBearer)
+        .expect(201)
         .end(function(err, res) {
-          expect(res.text).to.be.empty;
+          expect(res.body.name).to.equal('bar');
+          expect(res.body.owner_id).to.equal(global.sessionBobo.id);
+          global.channelBar = res.body;
           done(err);
         });
     });
@@ -50,6 +62,16 @@ describe('Channels API', function() {
 
     it('puts the specified package into the specified channel', function(done) {
       request.put('/depot/channels/neurosis/foo/pkgs/testapp/0.1.3/20171205003213/promote')
+        .set('Authorization', global.boboBearer)
+        .expect(200)
+        .end(function(err, res) {
+          expect(res.text).to.be.empty;
+          done(err);
+        });
+    });
+
+    it('can promote private packages', function(done) {
+      request.put('/depot/channels/neurosis/bar/pkgs/testapp/0.1.3/20171206004121/promote')
         .set('Authorization', global.boboBearer)
         .expect(200)
         .end(function(err, res) {
@@ -150,8 +172,41 @@ describe('Channels API', function() {
         });
     });
 
-    // it('requires authentication to view private packages in a channel', function(done) {
-    // });
+    it('requires authentication to view private packages in a channel', function(done) {
+      request.get('/depot/channels/neurosis/bar/pkgs/testapp/0.1.3/latest')
+        .type('application/json')
+        .accept('application/json')
+        .expect(404)
+        .end(function(err, res) {
+          done(err);
+        });
+    });
+
+    it('does not let members of other origins view private packages in a channel', function(done) {
+      request.get('/depot/channels/neurosis/bar/pkgs/testapp/0.1.3/latest')
+        .type('application/json')
+        .accept('application/json')
+        .set('Authorization', global.mystiqueBearer)
+        .expect(404)
+        .end(function(err, res) {
+          done(err);
+        });
+    });
+
+    it('allows members of the origin to view private packages when they are authenticated', function(done) {
+      request.get('/depot/channels/neurosis/bar/pkgs/testapp/0.1.3/latest')
+        .type('application/json')
+        .accept('application/json')
+        .set('Authorization', global.boboBearer)
+        .expect(200)
+        .end(function(err, res) {
+          expect(res.body.ident.origin).to.equal('neurosis');
+          expect(res.body.ident.name).to.equal('testapp');
+          expect(res.body.ident.version).to.equal('0.1.3');
+          expect(res.body.ident.release).to.equal('20171206004121');
+          done(err);
+        });
+    });
   });
 
   describe('Listing channels in an origin', function() {
@@ -161,10 +216,11 @@ describe('Channels API', function() {
         .accept('application/json')
         .expect(200)
         .end(function(err, res) {
-          expect(res.body.length).to.equal(3);
-          expect(res.body[0].name).to.equal('foo');
-          expect(res.body[1].name).to.equal('stable');
-          expect(res.body[2].name).to.equal('unstable');
+          expect(res.body.length).to.equal(4);
+          expect(res.body[0].name).to.equal('bar');
+          expect(res.body[1].name).to.equal('foo');
+          expect(res.body[2].name).to.equal('stable');
+          expect(res.body[3].name).to.equal('unstable');
           done(err);
         });
     });

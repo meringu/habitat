@@ -4,11 +4,21 @@ const request = supertest('http://localhost:9636/v1');
 
 describe('Origin Invitations API', function() {
   describe('Invite bobo to xmen', function() {
+    it('requires authentication', function(done) {
+      request.post('/depot/origins/xmen/users/bobo/invitations')
+        .expect(401)
+        .end(function(err, res) {
+          expect(res.text).to.be.empty;
+          done(err);
+        });
+    });
+
     it('refuses invitations from non-members', function(done) {
       request.post('/depot/origins/xmen/users/bobo/invitations')
         .set('Authorization', global.boboBearer)
         .expect(403)
         .end(function(err, res) {
+          expect(res.text).to.be.empty;
           done(err);
         });
     });
@@ -26,7 +36,7 @@ describe('Origin Invitations API', function() {
         });
     });
 
-    it('bobo shows up in the origins list of invitations', function(done) {
+    it('shows bobo in the origins list of invitations', function(done) {
       request.get('/depot/origins/xmen/invitations')
         .set('Authorization', global.mystiqueBearer)
         .expect(200)
@@ -46,7 +56,7 @@ describe('Origin Invitations API', function() {
       setTimeout(done, 2000);
     });
 
-    it('xmen shows up in bobos list of invitations', function(done) {
+    it('shows xmen in bobos list of invitations', function(done) {
       request.get('/user/invitations')
         .set('Authorization', global.boboBearer)
         .expect(200)
@@ -63,16 +73,26 @@ describe('Origin Invitations API', function() {
   });
 
   describe('Bobo accepts the invitation to the xmen', function() {
+    it('requires authentication to accept the invitation', function(done) {
+      request.put('/depot/origins/xmen/invitations/' + global.inviteBoboToXmen.id)
+        .expect(401)
+        .end(function(err, res) {
+          expect(res.text).to.be.empty;
+          done(err);
+        });
+    });
+
     it('accepts the invitation', function(done) {
       request.put('/depot/origins/xmen/invitations/' + global.inviteBoboToXmen.id)
         .set('Authorization', global.boboBearer)
         .expect(204)
         .end(function(err, res) {
+          expect(res.text).to.be.empty;
           done(err);
         });
     });
 
-    it('bobo does not show up in the origins list of invitations', function(done) {
+    it('does not show bobo in the origins list of invitations', function(done) {
       request.get('/depot/origins/xmen/invitations')
         .set('Authorization', global.mystiqueBearer)
         .expect(200)
@@ -82,7 +102,7 @@ describe('Origin Invitations API', function() {
         });
     });
 
-    it('xmen does not show up in bobos list of invitations', function(done) {
+    it('does not show xmen in bobos list of invitations', function(done) {
       request.get('/user/invitations')
         .set('Authorization', global.boboBearer)
         .expect(200)
@@ -92,7 +112,7 @@ describe('Origin Invitations API', function() {
         });
     });
 
-    it('xmen shows up in bobos origins', function(done) {
+    it('shows xmen in bobos origins', function(done) {
       request.get('/user/origins')
         .set('Authorization', global.boboBearer)
         .expect(200)

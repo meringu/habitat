@@ -29,6 +29,19 @@ describe('Working with packages', function() {
         });
     });
 
+    it('requires that you are a member of the origin to upload a package', function(done) {
+      request.post(`/depot/pkgs/neurosis/testapp/0.1.3/${release1}`)
+        .set('Authorization', global.mystiqueBearer)
+        .set('Content-Length', file1.length)
+        .query({checksum: '3138777020e7bb621a510b19c2f2630deee9b34ac11f1c2a0524a44eb977e4a8'})
+        .send(file1)
+        .expect(403)
+        .end(function(err, res) {
+          expect(res.text).to.be.empty;
+          done(err);
+        });
+    });
+
     it('allows authenticated users to upload packages', function(done) {
       request.post(`/depot/pkgs/neurosis/testapp/0.1.3/${release1}`)
         .set('Authorization', global.boboBearer)
@@ -308,6 +321,42 @@ describe('Working with packages', function() {
         .expect(200)
         .end(function(err, res) {
           expect(res.text).to.be.empty;
+          done(err);
+        });
+    });
+
+    it('requires authentication to view private packages', function(done) {
+      request.get(`/depot/pkgs/neurosis/testapp/0.1.3/${release2}`)
+        .type('application/json')
+        .accept('application/json')
+        .expect(404)
+        .end(function(err, res) {
+          done(err);
+        });
+    });
+
+    it('does not let members of other origins view private packages', function(done) {
+      request.get(`/depot/pkgs/neurosis/testapp/0.1.3/${release2}`)
+        .type('application/json')
+        .accept('application/json')
+        .set('Authorization', global.mystiqueBearer)
+        .expect(404)
+        .end(function(err, res) {
+          done(err);
+        });
+    });
+
+    it('allows members of the origin to view private packages when they are authenticated', function(done) {
+      request.get(`/depot/pkgs/neurosis/testapp/0.1.3/${release2}`)
+        .type('application/json')
+        .accept('application/json')
+        .set('Authorization', global.boboBearer)
+        .expect(200)
+        .end(function(err, res) {
+          expect(res.body.ident.origin).to.equal('neurosis');
+          expect(res.body.ident.name).to.equal('testapp');
+          expect(res.body.ident.version).to.equal('0.1.3');
+          expect(res.body.ident.release).to.equal(release2);
           done(err);
         });
     });

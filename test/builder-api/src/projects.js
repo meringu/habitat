@@ -7,7 +7,7 @@ const request = supertest('http://localhost:9636/v1');
 // described here
 // https://developer.github.com/apps/building-github-apps/identifying-and-authorizing-users-for-github-apps/
 // which expects users in a browser, not a server-side API.
-//
+
 describe('Projects API', function() {
   describe('Creating a project', function() {
     it('requires authentication', function(done) {
