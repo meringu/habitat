@@ -12,6 +12,20 @@ const projectCreatePayload = {
   repo_id: repoId
 };
 
+let projectExpectations = function(res) {
+  expect(res.body.id).to.not.be.empty;
+  expect(res.body.origin_id).to.equal(global.originNeurosis.id.toString());
+  expect(res.body.origin_name).to.equal('neurosis');
+  expect(res.body.package_name).to.equal('redis');
+  expect(res.body.name).to.equal('neurosis/redis');
+  expect(res.body.plan_path).to.equal('plan.sh');
+  expect(res.body.owner_id).to.equal(global.sessionBobo.id);
+  expect(res.body.vcs_type).to.equal('git');
+  expect(res.body.vcs_data).to.equal('https://github.com/habitat-sh/private-test.git')
+  expect(res.body.vcs_installation_id).to.equal(installationId.toString());
+  expect(res.body.visibility).to.equal('public');
+};
+
 describe('Projects API', function() {
   describe('Creating a project', function() {
     it('requires authentication', function(done) {
@@ -62,47 +76,85 @@ describe('Projects API', function() {
         .send(projectCreatePayload)
         .expect(201)
         .end(function(err, res) {
-          // console.log('-------------------------------');
-          // console.log(res.text);
-          // console.log('-------------------------------');
-          expect(res.body.id).to.not.be.empty;
-          expect(res.body.origin_id).to.equal(global.originNeurosis.id.toString());
-          expect(res.body.origin_name).to.equal('neurosis');
-          expect(res.body.package_name).to.equal('redis');
-          expect(res.body.name).to.equal('neurosis/redis');
-          expect(res.body.plan_path).to.equal('plan.sh');
-          expect(res.body.owner_id).to.equal(global.sessionBobo.id);
-          expect(res.body.vcs_type).to.equal('git');
-          expect(res.body.vcs_data).to.equal('https://github.com/habitat-sh/private-test.git')
-          expect(res.body.vcs_installation_id).to.equal(installationId.toString());
-          expect(res.body.visibility).to.equal('public');
+          projectExpectations(res);
           done(err);
         });
     });
   });
 
   describe('Retrieving a project', function() {
-    it('requires authentication');
+    it('requires authentication', function(done) {
+      request.get('/projects/neurosis/redis')
+        .type('application/json')
+        .accept('application/json')
+        .expect(401)
+        .end(function(err, res) {
+          expect(res.text).to.be.empty;
+          done(err);
+        });
+    });
 
-    it('requires membership in the origin that the project refers to');
+    it('requires membership in the origin that the project refers to', function(done) {
+      request.get('/projects/neurosis/redis')
+        .type('application/json')
+        .accept('application/json')
+        .set('Authorization', global.mystiqueBearer)
+        .expect(403)
+        .end(function(err, res) {
+          expect(res.text).to.be.empty;
+          done(err);
+        });
+    });
 
-    it('succeeds');
+    it('succeeds', function(done) {
+      request.get('/projects/neurosis/redis')
+        .type('application/json')
+        .accept('application/json')
+        .set('Authorization', global.boboBearer)
+        .expect(200)
+        .end(function(err, res) {
+          projectExpectations(res);
+          done(err);
+        });
+    });
   });
 
   describe('Listing all projects in an origin', function() {
-    it('requires authentication');
+    it('requires authentication', function(done) {
+      request.get('/projects/neurosis')
+        .type('application/json')
+        .accept('application/json')
+        .expect(401)
+        .end(function(err, res) {
+          expect(res.text).to.be.empty;
+          done(err);
+        });
+    });
 
-    it('requires membership in the origin that the project refers to');
+    it('requires membership in the origin that the project refers to', function(done) {
+      request.get('/projects/neurosis')
+        .type('application/json')
+        .accept('application/json')
+        .set('Authorization', global.mystiqueBearer)
+        .expect(403)
+        .end(function(err, res) {
+          expect(res.text).to.be.empty;
+          done(err);
+        });
+    });
 
-    it('succeeds');
-  });
-
-  describe('Listing all jobs for a project', function() {
-    it('requires authentication');
-
-    it('requires membership in the origin that the project refers to');
-
-    it('succeeds');
+    it('succeeds', function(done) {
+      request.get('/projects/neurosis')
+        .type('application/json')
+        .accept('application/json')
+        .set('Authorization', global.boboBearer)
+        .expect(200)
+        .end(function(err, res) {
+          expect(res.body.length).to.equal(1);
+          expect(res.body[0]).to.equal('redis');
+          done(err);
+        });
+    });
   });
 
   describe('Editing a project', function() {
@@ -129,6 +181,8 @@ describe('Projects API', function() {
     it('requires membership in the origin that the project refers to');
 
     it('succeeds');
+
+    it('creates another project so that other tests dont fail');
   });
 });
 
